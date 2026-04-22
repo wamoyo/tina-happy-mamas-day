@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>for her eyes</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Cormorant+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box }
+  html, body { min-height: 100vh }
+  body {
+    background: linear-gradient(135deg, #fef8f3 0%, #fbe8d9 50%, #f5d5c8 100%);
+    font-family: 'Cormorant Garamond', serif;
+    color: #3a2a20;
+    display: grid; place-items: center; padding: 2rem;
+  }
+  .gate {
+    max-width: 440px; width: 100%; text-align: center;
+    background: rgba(255,255,255,0.6);
+    border-radius: 16px; padding: 2.5rem 2rem;
+    box-shadow: 0 10px 30px rgba(138,74,85,0.15);
+    border-left: 4px solid #e8a3b5;
+  }
+  .gate h1 {
+    font-style: italic; color: #8a4a55;
+    font-size: clamp(2rem, 6vw, 3rem); margin-bottom: 0.4rem;
+  }
+  .sub {
+    font-family: 'Caveat', cursive; color: #6a3a45;
+    font-size: 1.3rem; margin-bottom: 1.8rem;
+  }
+  input[type=password] {
+    width: 100%; padding: 0.8rem 1rem; border-radius: 999px;
+    border: 1.5px solid #e8a3b5; background: #fffaf6;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.1rem;
+    color: #3a2a20; outline: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    text-align: center;
+  }
+  input[type=password]:focus {
+    border-color: #c88a7a;
+    box-shadow: 0 0 0 3px rgba(200,138,122,0.2);
+  }
+  button {
+    margin-top: 1rem; padding: 0.6rem 1.8rem; border: none;
+    border-radius: 999px; background: #c88a7a; color: #fffaf6;
+    font-family: 'Caveat', cursive; font-size: 1.3rem; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(200,138,122,0.3);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(200,138,122,0.4);
+  }
+  button:disabled { opacity: 0.4; cursor: not-allowed }
+  .msg {
+    margin-top: 1rem; min-height: 1.6rem;
+    font-family: 'Caveat', cursive; color: #8a4a55; font-size: 1.2rem;
+  }
+  .msg.err { color: #c06050 }
+  .msg.ok { color: #8a9a7b }
+  noscript {
+    display: block; text-align: center;
+    font-family: 'Caveat', cursive; font-size: 1.3rem; color: #8a4a55;
+  }
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="gate">
+    <h1>oh no</h1>
+    <p class="sub">this little site needs JavaScript turned on ♡</p>
+  </div>
+</noscript>
+
+<div class="gate" id="gate" hidden>
+  <h1>for her eyes</h1>
+  <p class="sub">whisper the word, love</p>
+  <form id="f" autocomplete="off">
+    <input id="pw" type="password" inputmode="text"
+           autocomplete="current-password" spellcheck="false"
+           placeholder="…" aria-label="password" required>
+    <br>
+    <button type="submit" id="go">unlock</button>
+  </form>
+  <div class="msg" id="msg" aria-live="polite"></div>
+</div>
+
+<script id="payload" type="application/json">{"v":1,"iter":600000,"salt":"uCOzoZQheP15yTa7R2OTCw==","iv":"D/khqVycy/LDoG1k","ct":"c0QQexb2aOr2AvuWptaQBQgOs4DsyKGcGnVGnlBDUZOJzCKeVkHDfBaZteu4GLWlhzh6WW2wYYp9UVQhdux1MB89uDPqY08ZXf/ZSFKXVamsLANCMj5hierm8+aUsfVN8eopSenkqeg/vqQ7lG3DNHxBDY5ZyXCOGJNHEk/76H+H4u120LHnUFVf9/QeuEYNCVHoRcyGLwQVxLskyixB16lbqodAAwlb2pYSVmoecAE0lQnKLM4dOX1E6UkmCcAYP/ssMIaXtlAnjJWL9IdgwqlzIY8qNckPdu7JfbPc5jwYzgf850G/kZZ323zlZZNzf+oIEGmUEcjBM+BhVW35Kr9JPQA8ZzqGc2iWNrq3vUL2r/c/ijcWzspgFOOqolhaGR6D/8c9pDl1LMbBPCj3bmPhrvUVzqmqg00yloITznpFKtoUamoCqTXqK4ic0z5s0NRkEZjQSrX9ntY="}</script>
+
+<script>
+// Client-side password gate. Classic script (NOT module) so document.write works.
+(function () {
+  'use strict'
+
+  var STORAGE_PW = 'k'
+  var STORAGE_ATTEMPTS = 'a'
+  var LOCK_AT = 50
+
+  // Escalating wrong-password messages; index clamps to the last after 12.
+  var MESSAGES = [
+    "hmm, not quite…",
+    "try again, love",
+    "close but no — have another go",
+    "that's not it. think smaller, sweeter",
+    "nope. what does she love most?",
+    "still no. take a breath, think again",
+    "… really? are you even trying?",
+    "ok, but she'd be disappointed",
+    "this is getting embarrassing for both of us",
+    "…",
+    "last few tries, champ",
+    "we're watching you, you know"
+  ]
+  var LOCKED_MSG = "that's enough. come back later ♡"
+
+  var gate = document.getElementById('gate')
+  var form = document.getElementById('f')
+  var input = document.getElementById('pw')
+  var btn = document.getElementById('go')
+  var msgEl = document.getElementById('msg')
+  var payload = JSON.parse(document.getElementById('payload').textContent)
+
+  // Pure: base64 string -> Uint8Array of bytes.
+  function b64ToBytes (s) {
+    var bin = atob(s)
+    var out = new Uint8Array(bin.length)
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i)
+    return out
+  }
+
+  // Side effect: runs Web Crypto PBKDF2 to derive an AES-GCM decryption key.
+  // Returns a Promise<CryptoKey>.
+  async function deriveKey (password, salt, iter) {
+    var base = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(password),
+      'PBKDF2', false, ['deriveKey']
+    )
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: salt, iterations: iter, hash: 'SHA-256' },
+      base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+    )
+  }
+
+  // Side effect: runs AES-GCM decrypt. Returns Promise<string> of decrypted HTML.
+  // Throws on authentication failure (i.e. wrong password).
+  async function decryptPayload (password) {
+    var key = await deriveKey(password, b64ToBytes(payload.salt), payload.iter)
+    var pt = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: b64ToBytes(payload.iv) },
+      key, b64ToBytes(payload.ct)
+    )
+    return new TextDecoder().decode(pt)
+  }
+
+  // Side effect: replaces the whole document with the decrypted HTML.
+  // Using document.open/write/close so inline <script>, <style>, <meta> all re-run.
+  function renderDecrypted (html) {
+    document.open()
+    document.write(html)
+    document.close()
+  }
+
+  // Pure: reads attempts counter from sessionStorage.
+  function getAttempts () {
+    return parseInt(sessionStorage.getItem(STORAGE_ATTEMPTS) || '0', 10)
+  }
+
+  // Side effect: writes attempts counter to sessionStorage.
+  function setAttempts (n) {
+    sessionStorage.setItem(STORAGE_ATTEMPTS, String(n))
+  }
+
+  // Side effect: shows a message to the user with optional error styling.
+  function showMsg (text, kind) {
+    msgEl.textContent = text
+    msgEl.className = 'msg' + (kind ? ' ' + kind : '')
+  }
+
+  // Side effect: disables the form and shows lockout copy.
+  function lockOut () {
+    input.disabled = true
+    btn.disabled = true
+    showMsg(LOCKED_MSG, 'err')
+  }
+
+  // Side effect: tries to decrypt, renders on success, bumps attempts on failure.
+  async function tryUnlock (password, silent) {
+    try {
+      var html = await decryptPayload(password)
+      sessionStorage.setItem(STORAGE_PW, password)
+      sessionStorage.removeItem(STORAGE_ATTEMPTS)
+      renderDecrypted(html)
+    } catch (e) {
+      // AES-GCM auth failure = wrong password.
+      if (silent) throw e
+      var n = getAttempts() + 1
+      setAttempts(n)
+      if (n >= LOCK_AT) { lockOut(); return }
+      var idx = Math.min(n - 1, MESSAGES.length - 1)
+      showMsg(MESSAGES[idx], 'err')
+      input.value = ''
+      input.focus()
+    }
+  }
+
+  // Auto-unlock if a cached password exists for this session.
+  var stashed = sessionStorage.getItem(STORAGE_PW)
+  if (stashed) {
+    tryUnlock(stashed, true).catch(function () {
+      // Cached password didn't work (shouldn't normally happen).
+      sessionStorage.removeItem(STORAGE_PW)
+      gate.hidden = false
+      input.focus()
+    })
+  } else {
+    gate.hidden = false
+    if (getAttempts() >= LOCK_AT) lockOut()
+    else input.focus()
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault()
+    if (btn.disabled) return
+    var pw = input.value
+    if (!pw) return
+    btn.disabled = true
+    showMsg('unlocking…', 'ok')
+    tryUnlock(pw).finally(function () {
+      if (!input.disabled) btn.disabled = false
+    })
+  })
+})()
+</script>
+</body>
+</html>
